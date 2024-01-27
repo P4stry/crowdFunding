@@ -21,7 +21,7 @@ const Manager = () => {
     const Create = async () => {
         try {
             
-            const tx = await App.Charitycontract.createRequests(Description, Address, ethers.utils.parseEther(target));
+            const tx = await App.Charitycontract.createProposal(Description, Address, ethers.utils.parseEther(target));
             await tx.wait();
             alert("Created Sucessfull!")
             setAddress('')
@@ -29,9 +29,9 @@ const Manager = () => {
             setDescription('')
         } catch (error) {
             if (error.message === "MetaMask Tx Signature: User denied transaction signature.") {
-                alert(" User denied transaction signature.")
-            } else if (error.message === "execution reverted: Only manager can calll this function") {
-                alert(" Only manager can calll this function")
+                alert("User denied transaction signature.")
+            } else if (error.message === "Execution reverted: Only manager can call this function") {
+                alert("Only manager can call this function")
             }
             else {
                 console.log(error.message)

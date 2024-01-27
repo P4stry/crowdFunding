@@ -47,7 +47,7 @@
                         "type": "uint256"
                     }
                 ],
-                "name": "createRequests",
+                "name": "createProposal",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
@@ -202,7 +202,7 @@
                         "type": "uint256"
                     }
                 ],
-                "name": "voteRequest",
+                "name": "donateProposal",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"

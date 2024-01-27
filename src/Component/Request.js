@@ -8,12 +8,12 @@ const Request = () => {
     const Vote = async (nums) => {
         try {
             console.log(nums)
-            const tx = await App.Charitycontract.voteRequest(nums);
+            const tx = await App.Charitycontract.donateProposal(nums);
             await tx.wait();
             alert("Voted Sucessfull!")
             setnum(num + 1);
         } catch (error) {
-            if (error.message === 'YOu must be contributor') {
+            if (error.message === 'You must be contributor') {
                 alert("All ready voted")
             }
             else {
