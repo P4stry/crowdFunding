@@ -8,9 +8,15 @@ contract CrowdFunding{
         _;
     }
 
-    // isPaused modifier
-    modifier isPaused(){
+    // notPaused modifier
+    modifier notPaused(){
         require(!paused, "The contract is paused");
+        _;
+    }
+
+    // onlyPaused modifier
+    modifier onlyPaused(){
+        require(paused, "The contract is not paused");
         _;
     }
 
@@ -80,7 +86,7 @@ contract CrowdFunding{
     receive() external payable {}
     
     // Get contribution
-    function getDonation() isPaused public payable{
+    function getDonation() notPaused public payable{
         require(msg.value >= minimumContribution,"Minimum Contribution is not met");
         // Update timestamp
         contributors[msg.sender].timestamp = block.timestamp;
@@ -94,7 +100,7 @@ contract CrowdFunding{
     }
 
     // Create new proposal
-    function createProposal(string memory description,address payable recipient,uint targetAmount) isPaused public {
+    function createProposal(string memory description,address payable recipient,uint targetAmount) notPaused public {
         Proposal storage newProposal = proposals[numProposals];
 
         newProposal.proposer = msg.sender;
@@ -111,7 +117,7 @@ contract CrowdFunding{
     }
     
     // Allow users to withdraw their donations (cold amount only)
-    function withdrawDonationFromPlateform(address payable receiver) isPaused public{
+    function withdrawDonationFromPlateform(address payable receiver) notPaused public{
         if (contributors[msg.sender].coldAmount == 0){
             if (contributors[msg.sender].hotAmount > 0){
                 revert("The voting is not finished yet");
@@ -126,7 +132,7 @@ contract CrowdFunding{
     }
 
     // Donors withdraw donation from campaign except the campaign is completed successfully
-    function withdrawDonationFromCampaign(uint proposalID) isPaused public{
+    function withdrawDonationFromCampaign(uint proposalID) notPaused public{
         Proposal storage selectedProposal = proposals[proposalID];
         // Update campaign state
         _updateCampaignState(selectedProposal);
@@ -149,7 +155,7 @@ contract CrowdFunding{
     }
 
     // Donate to proposal
-    function donateProposal(uint proposalID) isPaused public{
+    function donateProposal(uint proposalID) notPaused public{
         Proposal storage selectedProposal = proposals[proposalID];
         // Update campaign state
         _updateCampaignState(selectedProposal);
@@ -186,7 +192,7 @@ contract CrowdFunding{
     }
 
     // Proposer can finish the campaign if it is active and get enough money (only proposer)
-    function finishCampaign(uint proposalID) isPaused public{
+    function finishCampaign(uint proposalID) notPaused public{
         // Check if it is called by proposer
         Proposal storage selectedProposal = proposals[proposalID];
         require(msg.sender == selectedProposal.proposer, "Only proposer can change the campaign state");
@@ -218,7 +224,7 @@ contract CrowdFunding{
     }
 
     // Proposer can cancel campaign only if the campaign is active, funds will be sent back to donors' cold amount (only proposer)
-    function cancelCampaign(uint proposalID) isPaused public{
+    function cancelCampaign(uint proposalID) notPaused public{
         // Check if it is called by proposer
         Proposal storage selectedProposal = proposals[proposalID];
         require(msg.sender == selectedProposal.proposer, "Only proposer can change the campaign state");
@@ -262,6 +268,22 @@ contract CrowdFunding{
 
     function unPause() onlyAdmin public{
         paused = false;
+    }
+
+    function updateMinimumContribution(uint newMinimumContribution) onlyAdmin onlyPaused public{
+        minimumContribution = newMinimumContribution;
+    }
+
+    function updateFrozenElapse(uint newFrozenElapse) onlyAdmin onlyPaused public{
+        frozenElapse = newFrozenElapse;
+    }
+
+    function updateCampaignLength(uint newCampaignLength) onlyAdmin onlyPaused public{
+        campaignLength = newCampaignLength;
+    }
+
+    function updateAdmin(address newAdmin) onlyAdmin onlyPaused public{
+        admin = newAdmin;
     }
 
     // ===========================================Cheat Code===========================================
