@@ -2,6 +2,18 @@
 pragma solidity ^0.8.20;
 
 contract CrowdFunding{
+    // onlyAdmin modifier
+    modifier onlyAdmin(){
+        require(msg.sender == admin, "Only admin can call this function");
+        _;
+    }
+
+    // isPaused modifier
+    modifier isPaused(){
+        require(!paused, "The contract is paused");
+        _;
+    }
+
     enum State {Active, Expired, Completed}
 
     struct Proposal{
@@ -54,16 +66,21 @@ contract CrowdFunding{
     uint public frozenElapse; // Time between donation and voting
     uint public campaignLength; // Time for crowd funding
     uint public numProposals; // Number of proposals in the plateform, monotonically increasing, used as unique id
-    
+    bool public paused; // Pause the contract
+    address public admin;
+
     constructor(){
+        admin = msg.sender;
         minimumContribution = 0.00044 ether; // Should equal to 1 USD
         frozenElapse = 20; // 20 seconds between last donation and voting
         campaignLength = 7; // 7 days for crowd funding
+        paused = false;
     }
+    
     receive() external payable {}
     
     // Get contribution
-    function getDonation() public payable{
+    function getDonation() isPaused public payable{
         require(msg.value >= minimumContribution,"Minimum Contribution is not met");
         // Update timestamp
         contributors[msg.sender].timestamp = block.timestamp;
@@ -77,7 +94,7 @@ contract CrowdFunding{
     }
 
     // Create new proposal
-    function createProposal(string memory description,address payable recipient,uint targetAmount) public {
+    function createProposal(string memory description,address payable recipient,uint targetAmount) isPaused public {
         Proposal storage newProposal = proposals[numProposals];
 
         newProposal.proposer = msg.sender;
@@ -94,7 +111,7 @@ contract CrowdFunding{
     }
     
     // Allow users to withdraw their donations (cold amount only)
-    function withdrawDonationFromPlateform(address payable receiver) public{
+    function withdrawDonationFromPlateform(address payable receiver) isPaused public{
         if (contributors[msg.sender].coldAmount == 0){
             if (contributors[msg.sender].hotAmount > 0){
                 revert("The voting is not finished yet");
@@ -109,10 +126,10 @@ contract CrowdFunding{
     }
 
     // Donors withdraw donation from campaign except the campaign is completed successfully
-    function withdrawDonationFromCampaign(uint proposalID) public{
+    function withdrawDonationFromCampaign(uint proposalID) isPaused public{
         Proposal storage selectedProposal = proposals[proposalID];
         // Update campaign state
-        updateCampaignState(selectedProposal);
+        _updateCampaignState(selectedProposal);
         // Check state
         require(selectedProposal.state == State.Active || selectedProposal.state == State.Expired, "The campaign is completed successfully and donation could not be withdrawn");
         // Check if the user has donated
@@ -132,10 +149,10 @@ contract CrowdFunding{
     }
 
     // Donate to proposal
-    function donateProposal(uint proposalID) public{
+    function donateProposal(uint proposalID) isPaused public{
         Proposal storage selectedProposal = proposals[proposalID];
         // Update campaign state
-        updateCampaignState(selectedProposal);
+        _updateCampaignState(selectedProposal);
         // Check campaign state, only active campaign can be donated
         require(selectedProposal.state == State.Active, "The campaign is not active");
         // Check if the user has cold amount
@@ -169,12 +186,12 @@ contract CrowdFunding{
     }
 
     // Proposer can finish the campaign if it is active and get enough money (only proposer)
-    function finishCampaign(uint proposalID) public{
+    function finishCampaign(uint proposalID) isPaused public{
         // Check if it is called by proposer
         Proposal storage selectedProposal = proposals[proposalID];
         require(msg.sender == selectedProposal.proposer, "Only proposer can change the campaign state");
         // Update campaign state
-        updateCampaignState(selectedProposal);
+        _updateCampaignState(selectedProposal);
         // Check if the campaign is active
         require(selectedProposal.state == State.Active, "The campaign is not active. Could not be closed");
         // Check if the campaign has enough money
@@ -201,12 +218,12 @@ contract CrowdFunding{
     }
 
     // Proposer can cancel campaign only if the campaign is active, funds will be sent back to donors' cold amount (only proposer)
-    function cancelCampaign(uint proposalID) public{
+    function cancelCampaign(uint proposalID) isPaused public{
         // Check if it is called by proposer
         Proposal storage selectedProposal = proposals[proposalID];
         require(msg.sender == selectedProposal.proposer, "Only proposer can change the campaign state");
         // Update campaign state
-        updateCampaignState(selectedProposal);
+        _updateCampaignState(selectedProposal);
         // Check if the campaign is active or expired
         require(selectedProposal.state == State.Active, "The campaign is not active. Could not be cancelled");
         // Update campaign state
@@ -229,13 +246,22 @@ contract CrowdFunding{
     }
 
     // Update campaign state
-    function updateCampaignState(Proposal storage proposal) private{
+    function _updateCampaignState(Proposal storage proposal) private{
         // Update campaign state only if it is active
         if (proposal.state == State.Active){
             if (block.timestamp - proposal.startTime > campaignLength * 1 days){
                 proposal.state = State.Expired;
             }
         }
+    }
+    
+    // ===========================================Admin===========================================
+    function pause() onlyAdmin public{
+        paused = true;
+    }
+
+    function unPause() onlyAdmin public{
+        paused = false;
     }
 
     // ===========================================Cheat Code===========================================
