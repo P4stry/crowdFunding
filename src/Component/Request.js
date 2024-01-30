@@ -8,7 +8,7 @@ const Request = () => {
     const Vote = async (nums) => {
         try {
             console.log(nums)
-            const tx = await App.Charitycontract.donateProposal(nums);
+            const tx = await App.Charitycontract.voteRequest(nums);
             await tx.wait();
             alert("Voted Sucessfull!")
             setnum(num + 1);
@@ -25,7 +25,7 @@ const Request = () => {
     const Donate = async (id) => {
         try {
             console.log(id)
-            const tx = await App.Charitycontract.makePayment(id);
+            const tx = await App.Charitycontract.donateProposal(id);
             await tx.wait();
             alert("Donated Sucessfull!")
             setnum(num + 1);
@@ -42,7 +42,7 @@ const Request = () => {
     useEffect(() => {
         const getProposals = async () => {
             try {
-                const Count = await App.Charitycontract.numRequests()
+                const Count = await App.Charitycontract.getNumProposals()
                 let proposals = [];
                 for (let i = 0; i < Count; i++) {
                     const Proposal = await App.Charitycontract.requests(i)

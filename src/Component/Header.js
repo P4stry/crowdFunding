@@ -14,10 +14,10 @@ const Header = () => {
             setAddress(accounts[0]);
         };
         const handleChainChanged = (chainId) => {
-            if (chainId === "0xaa36a7") {
+            if (chainId === "0xaa36a7") { //Sepolia test network
                 setChainId(chainId);
                 alert("Connected")
-            } else if (chainId === "0x5") {
+            } else if (chainId === "0x5") { // Goerli Test network
                 setChainId(chainId);
                 alert("Connected")
             } else {

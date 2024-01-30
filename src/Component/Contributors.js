@@ -7,7 +7,7 @@ const Contributors = () => {
 
     const Contribute = async () => {
         try {
-            const tx = await App.Charitycontract.sendEth({ value: ethers.utils.parseEther(Amount) });
+            const tx = await App.Charitycontract.receiveDonation({ value: ethers.utils.parseEther(Amount) });
             await tx.wait();
             alert("Donated Sucessfull!")
             setAmount('')
