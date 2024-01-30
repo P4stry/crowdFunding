@@ -9,7 +9,7 @@ function App() {
   useEffect(() => {
     const loadEthereum = async () => {
       if (typeof window.ethereum !== 'undefined') { 
-        const ContractAddress = "0xBb6E92CD522Ee7b18fD4a14396F3df513945dA5b" //current addr: "0x2D87AEef4C8224aDDc8a121ad9517F4ed3c4897C"
+        const ContractAddress = "0x487B2eFD927b02bd8692F1f09E91ab06E29C4E40" //current addr: "0x2D87AEef4C8224aDDc8a121ad9517F4ed3c4897C"
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const CharityContract = new ethers.Contract(ContractAddress, CharityDAO.output.abi, signer);
