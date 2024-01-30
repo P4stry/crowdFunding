@@ -1,25 +1,10 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-contract CrowdFunding{
-    // onlyAdmin modifier
-    modifier onlyAdmin(){
-        require(msg.sender == admin, "Only admin can call this function");
-        _;
-    }
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-    // notPaused modifier
-    modifier notPaused(){
-        require(!paused, "The contract is paused");
-        _;
-    }
-
-    // onlyPaused modifier
-    modifier onlyPaused(){
-        require(paused, "The contract is not paused");
-        _;
-    }
-
+contract CrowdFunding is Pausable, Ownable{
     enum State {Active, Expired, Completed}
 
     struct Proposal{
@@ -72,35 +57,26 @@ contract CrowdFunding{
     uint public frozenElapse; // Time between donation and voting
     uint public campaignLength; // Time for crowd funding
     uint public numProposals; // Number of proposals in the plateform, monotonically increasing, used as unique id
-    bool public paused; // Pause the contract
-    address public admin;
 
-    constructor(){
-        admin = msg.sender;
+    constructor(address _owner) Ownable(_owner){
         minimumContribution = 0.00044 ether; // Should equal to 1 USD
         frozenElapse = 20; // 20 seconds between last donation and voting
         campaignLength = 7; // 7 days for crowd funding
-        paused = false;
     }
     
     receive() external payable {}
     
     // Get contribution
-    function getDonation() notPaused public payable{
+    function receiveDonation() whenNotPaused public payable{
         require(msg.value >= minimumContribution,"Minimum Contribution is not met");
         // Update timestamp
         contributors[msg.sender].timestamp = block.timestamp;
         // Update cold amount
         contributors[msg.sender].coldAmount += msg.value;
     }
-
-    // Get total fund in the contract
-    function getContractBalance() public view returns(uint){
-        return address(this).balance;
-    }
-
+    
     // Create new proposal
-    function createProposal(string memory description,address payable recipient,uint targetAmount) notPaused public {
+    function createProposal(string memory description,address payable recipient,uint targetAmount) whenNotPaused public {
         Proposal storage newProposal = proposals[numProposals];
 
         newProposal.proposer = msg.sender;
@@ -117,7 +93,7 @@ contract CrowdFunding{
     }
     
     // Allow users to withdraw their donations (cold amount only)
-    function withdrawDonationFromPlateform(address payable receiver) notPaused public{
+    function withdrawDonationFromPlateform(address payable receiver) whenNotPaused public{
         if (contributors[msg.sender].coldAmount == 0){
             if (contributors[msg.sender].hotAmount > 0){
                 revert("The voting is not finished yet");
@@ -132,7 +108,7 @@ contract CrowdFunding{
     }
 
     // Donors withdraw donation from campaign except the campaign is completed successfully
-    function withdrawDonationFromCampaign(uint proposalID) notPaused public{
+    function withdrawDonationFromCampaign(uint proposalID) whenNotPaused public{
         Proposal storage selectedProposal = proposals[proposalID];
         // Update campaign state
         _updateCampaignState(selectedProposal);
@@ -141,6 +117,7 @@ contract CrowdFunding{
         // Check if the user has donated
         uint donatedAmount = proposalDonationAmount[proposalID][msg.sender];
         require(donatedAmount > 0, "You have not donated to this campaign");
+
         // Update cold amount
         contributors[msg.sender].coldAmount += donatedAmount;
         // Update hot amount
@@ -155,7 +132,7 @@ contract CrowdFunding{
     }
 
     // Donate to proposal
-    function donateProposal(uint proposalID) notPaused public{
+    function donateProposal(uint proposalID) whenNotPaused public{
         Proposal storage selectedProposal = proposals[proposalID];
         // Update campaign state
         _updateCampaignState(selectedProposal);
@@ -192,7 +169,7 @@ contract CrowdFunding{
     }
 
     // Proposer can finish the campaign if it is active and get enough money (only proposer)
-    function finishCampaign(uint proposalID) notPaused public{
+    function finishCampaign(uint proposalID) whenNotPaused public{
         // Check if it is called by proposer
         Proposal storage selectedProposal = proposals[proposalID];
         require(msg.sender == selectedProposal.proposer, "Only proposer can change the campaign state");
@@ -202,6 +179,9 @@ contract CrowdFunding{
         require(selectedProposal.state == State.Active, "The campaign is not active. Could not be closed");
         // Check if the campaign has enough money
         require(selectedProposal.currentAmount >= selectedProposal.targetAmount, "The campaign does not have enough money");
+        // Check if the contract has enough money
+        require(address(this).balance >= selectedProposal.currentAmount, "The contract does not have enough money");
+
         // Update campaign state
         selectedProposal.state = State.Completed;
         // Update donors' information
@@ -224,7 +204,7 @@ contract CrowdFunding{
     }
 
     // Proposer can cancel campaign only if the campaign is active, funds will be sent back to donors' cold amount (only proposer)
-    function cancelCampaign(uint proposalID) notPaused public{
+    function cancelCampaign(uint proposalID) whenNotPaused public{
         // Check if it is called by proposer
         Proposal storage selectedProposal = proposals[proposalID];
         require(msg.sender == selectedProposal.proposer, "Only proposer can change the campaign state");
@@ -260,30 +240,107 @@ contract CrowdFunding{
             }
         }
     }
-    
-    // ===========================================Admin===========================================
-    function pause() onlyAdmin public{
-        paused = true;
+    // ===========================================getter===========================================
+    function getContributors(address donor) public view returns(
+        uint timestamp,
+        uint coldAmount,
+        uint hotAmount)
+    {
+        timestamp = contributors[donor].timestamp;
+        coldAmount = contributors[donor].coldAmount;
+        hotAmount = contributors[donor].hotAmount;
     }
 
-    function unPause() onlyAdmin public{
-        paused = false;
+    function getProposalDonationAmount(uint proposalID, address donor) public view returns(uint){
+        return proposalDonationAmount[proposalID][donor];
     }
 
-    function updateMinimumContribution(uint newMinimumContribution) onlyAdmin onlyPaused public{
+    function getProposal(uint proposalID) public view returns(
+        address proposer,
+        uint uniqueid,
+        uint startTime,
+        string memory description,
+        address recipient,
+        uint targetAmount,
+        uint currentAmount,
+        string memory re_state,
+        uint numDonors,
+        address[] memory donors,
+        address[] memory finalDonors)
+    {
+        proposer = proposals[proposalID].proposer;
+        uniqueid = proposals[proposalID].uniqueid;
+        startTime = proposals[proposalID].startTime;
+        description = proposals[proposalID].description;
+        recipient = proposals[proposalID].recipient;
+        targetAmount = proposals[proposalID].targetAmount;
+        currentAmount = proposals[proposalID].currentAmount;
+        State state = proposals[proposalID].state;
+        if (state == State.Active){
+            re_state = "Active";
+        }
+        else if (state == State.Expired){
+            re_state = "Expired";
+        }
+        else{
+            re_state = "Completed";
+        }
+        numDonors = proposals[proposalID].numDonors;
+        donors = proposals[proposalID].donors;
+        finalDonors = proposals[proposalID].finalDonors;
+    }
+
+    function getContractBalance() public view returns(uint){
+        return address(this).balance;
+    }
+
+    function getMinimumContribution() public view returns(uint){
+        return minimumContribution;
+    }
+
+    function getFrozenElapse() public view returns(uint){
+        return frozenElapse;
+    }
+
+    function getCampaginLength() public view returns(uint){
+        return campaignLength;
+    }
+
+    function getNumProposals() public view returns(uint){
+        return numProposals;
+    }
+
+    function getPaused() public view returns(bool){
+        return paused();
+    }
+
+    function getOwner() public view returns(address){
+        return owner();
+    }
+
+    // ===========================================Governance===========================================
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
+    }
+
+    function updateMinimumContribution(uint newMinimumContribution) onlyOwner whenPaused public{
         minimumContribution = newMinimumContribution;
     }
 
-    function updateFrozenElapse(uint newFrozenElapse) onlyAdmin onlyPaused public{
+    function updateFrozenElapse(uint newFrozenElapse) onlyOwner whenPaused public{
         frozenElapse = newFrozenElapse;
     }
 
-    function updateCampaignLength(uint newCampaignLength) onlyAdmin onlyPaused public{
+    function updateCampaignLength(uint newCampaignLength) onlyOwner whenPaused public{
         campaignLength = newCampaignLength;
     }
 
-    function updateAdmin(address newAdmin) onlyAdmin onlyPaused public{
-        admin = newAdmin;
+    function updateOwner(address newOwner) onlyOwner whenPaused public{
+        transferOwnership(newOwner);
     }
 
     // ===========================================Cheat Code===========================================
@@ -329,57 +386,8 @@ contract CrowdFunding{
 //         proposals[proposalID].donors = newDonors;
 //     }
 
-//     function getContributors(address donor) public view returns(
-//         uint timestamp,
-//         uint coldAmount,
-//         uint hotAmount)
-//     {
-//         timestamp = contributors[donor].timestamp;
-//         coldAmount = contributors[donor].coldAmount;
-//         hotAmount = contributors[donor].hotAmount;
-//     }
-
-//     function getProposal(uint proposalID) public view returns(
-//         address proposer,
-//         uint uniqueid,
-//         uint startTime,
-//         string memory description,
-//         address recipient,
-//         uint targetAmount,
-//         uint currentAmount,
-//         string memory re_state,
-//         uint numDonors,
-//         address[] memory donors,
-//         address[] memory finalDonors)
-//     {
-//         proposer = proposals[proposalID].proposer;
-//         uniqueid = proposals[proposalID].uniqueid;
-//         startTime = proposals[proposalID].startTime;
-//         description = proposals[proposalID].description;
-//         recipient = proposals[proposalID].recipient;
-//         targetAmount = proposals[proposalID].targetAmount;
-//         currentAmount = proposals[proposalID].currentAmount;
-//         State state = proposals[proposalID].state;
-//         if (state == State.Active){
-//             re_state = "Active";
-//         }
-//         else if (state == State.Expired){
-//             re_state = "Expired";
-//         }
-//         else{
-//             re_state = "Completed";
-//         }
-//         numDonors = proposals[proposalID].numDonors;
-//         donors = proposals[proposalID].donors;
-//         finalDonors = proposals[proposalID].finalDonors;
-//     }
-
-//     function getProposalDonationAmount(uint proposalID, address donor) public view returns(uint){
-//         return proposalDonationAmount[proposalID][donor];
-//     }
-
 //     function updateCampaignStateForTest(uint proposalID) public{
 //         Proposal storage selectedProposal = proposals[proposalID];
-//         updateCampaignState(selectedProposal);
+//         _updateCampaignState(selectedProposal);
 //     }
 }
