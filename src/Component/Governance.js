@@ -12,6 +12,14 @@ const Governance = () => {
     const [numProposals, setNumProposals] = useState('0');
     const [isPaused, setIsPaused] = useState(false);
 
+    // const [contractBalance, setContractBalance] = useState('');
+    const [minimumContribution, setMinimumContribution] = useState('');
+    const [frozenElapse, setFrozenElapse] = useState('');
+    const [campaignLength, setCampaignLength] = useState('');
+    // const [numProposals, setNumProposals] = useState('');
+    // const [isPaused, setIsPaused] = useState('');
+    const [owner, setOwner] = useState('');
+
     useEffect (() => {
 
         const fetchContractData = async () => {
@@ -25,12 +33,12 @@ const Governance = () => {
                 const contractOwner = await App.Charitycontract.getOwner();
 
                 setContractBalance(ethers.utils.formatEther(balance));
-                setNewMinimumContribution(ethers.utils.formatEther(minContribution));
-                setNewFrozenElapse(frozen.toString());
-                setNewCampaignLength(campaignLen.toString());
+                setMinimumContribution(ethers.utils.formatEther(minContribution));
+                setFrozenElapse(frozen.toString());
+                setCampaignLength(campaignLen.toString());
                 setNumProposals(proposals.toString());
                 setIsPaused(paused);
-                setNewOwner(contractOwner);
+                setOwner(contractOwner);
 
             } catch (error) {
                 console.error("Error fetching contract data:", error);
@@ -78,6 +86,21 @@ const Governance = () => {
         await tx.wait();
         alert("Ownership Transferred");
     };
+    
+    const clearInput = (setter) => () => setter('');
+
+    const headerStyle = {
+        fontSize: '36px',
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: '20px'
+    };
+    
+    const textStyle = {
+        fontSize: '16px',
+        color: '#555',
+        marginBottom: '10px'
+    };
 
     const buttonStyle = {
         cursor: 'pointer',
@@ -102,14 +125,14 @@ const Governance = () => {
     
     return (
         <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px' }}>
-            <h2 style={{ fontSize: '36px' }}>Contract Governance</h2>
-            <p>Contract Balance: {contractBalance} ETH</p>
-            <p>Minimum Contribution: {newMinimumContribution} ETH</p>
-            <p>Frozen Elapse: {newFrozenElapse} seconds</p>
-            <p>Campaign Length: {newCampaignLength} days</p>
-            <p>Number of Proposals: {numProposals}</p>
-            <p>Is Paused: {isPaused ? 'Yes' : 'No'}</p>
-            <p>Owner: {newOwner}</p>
+            <h2 style={headerStyle}>Contract Governance</h2>
+            <p style={textStyle}>Contract Balance: {contractBalance} ETH</p>
+            <p style={textStyle}>Minimum Contribution: {minimumContribution} ETH</p>
+            <p style={textStyle}>Frozen Elapse: {frozenElapse} seconds</p>
+            <p style={textStyle}>Campaign Length: {campaignLength} days</p>
+            <p style={textStyle}>Number of Proposals: {numProposals}</p>
+            <p style={textStyle}>Is Paused: {isPaused ? 'Yes' : 'No'}</p>
+            <p style={textStyle}>Owner: {owner}</p>
             <div style={{ marginBottom: '15px' }}>
                 <button onClick={pauseContract} style={buttonStyle}>Pause Contract</button>
                 <button onClick={unpauseContract} style={buttonStyle}>Unpause Contract</button>
@@ -117,7 +140,8 @@ const Governance = () => {
             <div style={inputGroupStyle}>
                 <input 
                     value={newMinimumContribution} 
-                    onChange={(e) => setNewMinimumContribution(e.target.value)} 
+                    onChange={(e) => setNewMinimumContribution(e.target.value)}
+                    onFocus={clearInput(setNewMinimumContribution)} 
                     placeholder="New Min Contribution"
                     style={inputStyle}
                 />
@@ -127,6 +151,7 @@ const Governance = () => {
                 <input 
                     value={newFrozenElapse} 
                     onChange={(e) => setNewFrozenElapse(e.target.value)} 
+                    onFocus={clearInput(setNewFrozenElapse)}
                     placeholder="New Frozen Elapse"
                     style={inputStyle}
                 />
@@ -136,6 +161,7 @@ const Governance = () => {
                 <input 
                     value={newCampaignLength} 
                     onChange={(e) => setNewCampaignLength(e.target.value)} 
+                    onFocus={clearInput(setNewCampaignLength)}
                     placeholder="New Campaign Length"
                     style={inputStyle}
                 />
@@ -145,6 +171,7 @@ const Governance = () => {
                 <input 
                     value={newOwner} 
                     onChange={(e) => setNewOwner(e.target.value)} 
+                    onFocus={clearInput(setNewOwner)}
                     placeholder="New Owner Address"
                     style={inputStyle}
                 />
