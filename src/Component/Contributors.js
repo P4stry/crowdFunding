@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 const Contributors = () => {
     const App = useContext(AppState);
     const [Amount, setAmount] = useState();
-
+    const [minimumDonation, setMinimumDonation] = useState('');
     const Contribute = async () => {
         try {
             const tx = await App.Charitycontract.receiveDonation({ value: ethers.utils.parseEther(Amount) });
@@ -15,19 +15,33 @@ const Contributors = () => {
             if (error.message === "MetaMask Tx Signature: User denied transaction signature.") {
                 alert(" User denied transaction signature.")
             }
-            else {
+            else if (error.message === "Minimum donation is not met"){
+                console.log(error.message)
+                alert(error.message)
+            } else {
                 console.log(error.message)
                 alert("Something went wrong")
             }
         }
     };
+    useEffect(() => {
+        const getMinimumDonation = async () => {
+            try {
+                const minimumDonation = await App.Charitycontract.getMinimumContribution()
+                setMinimumDonation(minimumDonation);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getMinimumDonation();
+    }, []);
   return (
       <div>
           <section class="text-gray-600 body-font">
               <div class="container px-5 py-24 mx-auto">
                   <div class="flex flex-col text-center w-full mb-12">
                       <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">For Contributors</h1>
-                      <p class="lg:w-2/3 mx-auto leading-relaxed text-base">Listen to that little voice inside your head, and make a small contribution towards a good cause.</p>
+                      <p class="lg:w-2/3 mx-auto leading-relaxed text-base">The minimum donation amount is {(minimumDonation.toString()) / 10 ** 18} ETH</p>
                   </div>
                   <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-end">
                       <div class="relative flex-grow w-full">

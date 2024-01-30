@@ -77,7 +77,7 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
     
     // Get contribution
     function receiveDonation() whenNotPaused public payable{
-        require(msg.value >= minimumContribution,"Minimum Contribution is not met");
+        require(msg.value >= minimumContribution, "Minimum donation is not met");
         // Update timestamp
         contributors[msg.sender].timestamp = block.timestamp;
         // Update cold amount
@@ -105,7 +105,7 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
     function withdrawDonationFromPlateform(address payable receiver) whenNotPaused public{
         if (contributors[msg.sender].coldAmount == 0){
             if (contributors[msg.sender].hotAmount > 0){
-                revert("The voting is not finished yet");
+                revert("The crowfunding is not finished yet");
             }
             else{
                 revert("You have no money to withdraw");
@@ -150,10 +150,10 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
         // Check if the user has cold amount
         if (contributors[msg.sender].coldAmount == 0){
             if (contributors[msg.sender].hotAmount > 0){
-                revert("You do not have balance for new voting, please wait for the current voting to finish");
+                revert("You do not have balance for new donation, please wait for the current active crowfunding to finish");
             }
             else{
-                revert("You must be a contributor");
+                revert("You do not have balance for donation");
             }
         }
         // Prevent Flashloan attack: The elapsed time between donation and voting should be longer than predefined time
