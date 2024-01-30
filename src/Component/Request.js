@@ -5,37 +5,37 @@ const Request = () => {
     const App = useContext(AppState);
     const [Data, setData] = useState([]);
     const [num, setnum] = useState(0);
-    const Vote = async (nums) => {
+    const Refund = async (proposalID) => {
         try {
-            console.log(nums)
-            const tx = await App.Charitycontract.voteRequest(nums);
+            const tx = await App.Charitycontract.voteRequest(proposalID);
             await tx.wait();
-            alert("Voted Sucessfull!")
-            setnum(num + 1);
+            alert("Refund Sucessfully!")
         } catch (error) {
-            if (error.message === 'You must be contributor') {
-                alert("All ready voted")
+            if (error.message === "The campaign is completed successfully and donation could not be withdrawn") {
+                alert(error.message)
             }
-            else {
+            else if (error.message === "You have not donated to this campaign") {
+                console.log(error.message)
+                alert(error.message)
+            } else {
                 console.log(error.message)
                 alert("Something went wrong")
             }
         }
     };
-    const Donate = async (id) => {
+    const Donate = async (proposalID) => {
         try {
-            console.log(id)
-            const tx = await App.Charitycontract.donateProposal(id);
+            const tx = await App.Charitycontract.donateProposal(proposalID);
             await tx.wait();
-            alert("Donated Sucessfull!")
-            setnum(num + 1);
+            alert("Donated Sucessfully!")
         } catch (error) {
-            if (error.message == "execution reverted: You already Voted") {
-                alert("All ready voted")
-            }
-            else {
+            if (error.message == "You do not have balance for new donation, please wait for the current active crowfunding to finish") {
                 console.log(error.message)
-                alert("Something went wrong")
+                alert(error.message)
+            }
+            else if (error.message === "You do not have balance for donation") {
+                console.log(error.message)
+                alert(error.message)
             }
         }
     };
@@ -74,22 +74,46 @@ const Request = () => {
                                         <p class="leading-relaxed mt-5 mb-5">{e.description}</p>
                                         <div class="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
                                             <span class="text-black  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
-                                                Votes
+                                                Start time
                                             </span>
                                             <span class="text-black font-bold  inline-flex items-center leading-none text-sm">
-                                                {e.noOfVoters.toString()}
+                                                {e.startTime.toString()}
+                                            </span>
+                                            <span class="text-black  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                                                Current funds
+                                            </span>
+                                            <span class="text-black font-bold  inline-flex items-center leading-none text-sm">
+                                                {Number(e.currentAmount.toString()) / 10 ** 18} ETH {}
+                                            </span>
+                                            <span class="text-black  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                                                Current funds
+                                            </span>
+                                            <span class="text-black font-bold  inline-flex items-center leading-none text-sm">
+                                                {Number(e.currentAmount.toString()) / 10 ** 18} ETH {}
                                             </span>
                                             <span class="text-black ml-10 font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
                                                 Funds Need
                                             </span>
                                             <span class="text-black font-bold  inline-flex items-center leading-none text-sm">
-                                                {Number(e.target.toString()) / 10 ** 18} ETH {}
-                                            </span> 
+                                                {Number(e.targetAmount.toString()) / 10 ** 18} ETH {}
+                                            </span>
+                                            <span class="text-black  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                                                State
+                                            </span>
+                                            <span class="text-black font-bold  inline-flex items-center leading-none text-sm">
+                                                {e.state.toString()}
+                                            </span>
+                                            <span class="text-black  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                                                Number of donors
+                                            </span>
+                                            <span class="text-black font-bold  inline-flex items-center leading-none text-sm">
+                                                {e.numDonors.toString()}
+                                            </span>
                                             
                                         </div>
                                         
                                         <div className='flex justify-center absolute bottom-10 left-0 w-full py-4'>
-                                            <button onClick={() => Vote(Number(e.uniqueid.toString()))} class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded">Vote</button>
+                                            <button onClick={() => Refund(Number(e.uniqueid.toString()))} class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded">Refund</button>
                                             <button onClick={() => Donate(Number(e.uniqueid.toString()))} class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded">Donate</button>
                                         </div>
                                     </div>

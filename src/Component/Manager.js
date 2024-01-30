@@ -30,10 +30,7 @@ const Manager = () => {
         } catch (error) {
             if (error.message === "MetaMask Tx Signature: User denied transaction signature.") {
                 alert("User denied transaction signature.")
-            } else if (error.message === "Execution reverted: Only manager can call this function") {
-                alert("Only manager can call this function")
-            }
-            else {
+            } else {
                 console.log(error.message)
                 alert("Something went wrong")
             }
