@@ -1,4 +1,4 @@
-import React,{useState,useContext} from 'react'
+import React,{useState,useContext,useEffect} from 'react'
 import { AppState } from '../App'
 import { ethers } from 'ethers';
 const Contributors = () => {
