@@ -3,6 +3,7 @@ import { AppState } from '../App'
 import Manager from './Manager'
 import Contributors from './Contributors'
 import Request from './Request'
+import Governance from './Governance'
 const Header = () => {
     const App = useContext(AppState)
     const [Address, setAddress] = useState(null);
@@ -65,6 +66,7 @@ const Header = () => {
                     <m onClick={() => setRoute('Contributors')} class="mr-5 mt-1 hover:text-gray-900">Contributors</m>
                     <m onClick={() => setRoute('Request')} class="mr-5 mt-1 hover:text-gray-900">Requests</m>
                     <m onClick={() => setRoute('Manager')} class="mr-5 mt-1 hover:text-gray-900">Manager</m>
+                     <m onClick={() => setRoute('Governance')} className="mr-5 mt-1 hover:text-gray-900">Governance</m>
                     {Address === null ? (
                         <div onClick={LoginWallet} className='flex border-opacity-60 bg-opacity-90 text-lg font-medium border-2 border-white-800 cursor-pointer bg-black hover:bg-gray-800 text-white mt-1 rounded-2xl justify-center items-center py-1 px-2'>
                             Connect
@@ -95,6 +97,9 @@ const Header = () => {
                     return <Manager />
                 }else if (route === 'Request') {
                     return <Request />
+                }
+                else if (route === 'Governance') {
+                    return <Governance />
                 }
             })()}
         </header>
