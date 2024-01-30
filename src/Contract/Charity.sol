@@ -1,10 +1,12 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/utils/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract CrowdFunding is Pausable, Ownable{
+contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable, UUPSUpgradeable{
     enum State {Active, Expired, Completed}
 
     struct Proposal{
@@ -58,13 +60,20 @@ contract CrowdFunding is Pausable, Ownable{
     uint public campaignLength; // Time for crowd funding
     uint public numProposals; // Number of proposals in the plateform, monotonically increasing, used as unique id
 
-    constructor(address _owner) Ownable(_owner){
+    receive() external payable {}
+
+    constructor(){
+        _disableInitializers();
+    }
+
+    function initialize(address initialOwner) initializer public {
+        __Pausable_init();
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
         minimumContribution = 0.00044 ether; // Should equal to 1 USD
         frozenElapse = 20; // 20 seconds between last donation and voting
         campaignLength = 7; // 7 days for crowd funding
     }
-    
-    receive() external payable {}
     
     // Get contribution
     function receiveDonation() whenNotPaused public payable{
@@ -302,7 +311,7 @@ contract CrowdFunding is Pausable, Ownable{
         return frozenElapse;
     }
 
-    function getCampaginLength() public view returns(uint){
+    function getCampaignLength() public view returns(uint){
         return campaignLength;
     }
 
@@ -342,52 +351,57 @@ contract CrowdFunding is Pausable, Ownable{
     function updateOwner(address newOwner) onlyOwner whenPaused public{
         transferOwnership(newOwner);
     }
-
+    
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
     // ===========================================Cheat Code===========================================
-//     function manipulateFrozenElapse(uint newFrozenElapse) public{
-//         frozenElapse = newFrozenElapse;
-//     }
+    // function manipulateFrozenElapse(uint newFrozenElapse) public{
+    //     frozenElapse = newFrozenElapse;
+    // }
 
-//     function manipualateCampaignLength(uint newCampaignLength) public{
-//         campaignLength = newCampaignLength;
-//     }
+    // function manipulateCampaignLength(uint newCampaignLength) public{
+    //     campaignLength = newCampaignLength;
+    // }
 
-//     function manipulateContributors(address contributor, uint newTimestamp, uint newColdAmount, uint newHotAmount) public{
-//         contributors[contributor].timestamp = newTimestamp;
-//         contributors[contributor].coldAmount = newColdAmount;
-//         contributors[contributor].hotAmount = newHotAmount;
-//     }
+    // function manipulateContributors(address contributor, uint newTimestamp, uint newColdAmount, uint newHotAmount) public{
+    //     contributors[contributor].timestamp = newTimestamp;
+    //     contributors[contributor].coldAmount = newColdAmount;
+    //     contributors[contributor].hotAmount = newHotAmount;
+    // }
 
-//     function manipulateProposalDonationAmount(uint proposalID, address contributor, uint newDonationAmount) public{
-//         proposalDonationAmount[proposalID][contributor] = newDonationAmount;
-//     }
+    // function manipulateProposalDonationAmount(uint proposalID, address contributor, uint newDonationAmount) public{
+    //     proposalDonationAmount[proposalID][contributor] = newDonationAmount;
+    // }
 
-//     function manipulateMinimumContribution(uint newMinimumContribution) public{
-//         minimumContribution = newMinimumContribution;
-//     }
+    // function manipulateMinimumContribution(uint newMinimumContribution) public{
+    //     minimumContribution = newMinimumContribution;
+    // }
 
-//     function manipulateProposalState(uint proposalID, uint newState) public{
-//         if (newState == 0){
-//             proposals[proposalID].state = State.Active;
-//         }
-//         else if (newState == 1){
-//             proposals[proposalID].state = State.Expired;
-//         }
-//         else if (newState == 2){
-//             proposals[proposalID].state = State.Completed;
-//         }
-//     }
+    // function manipulateProposalState(uint proposalID, uint newState) public{
+    //     if (newState == 0){
+    //         proposals[proposalID].state = State.Active;
+    //     }
+    //     else if (newState == 1){
+    //         proposals[proposalID].state = State.Expired;
+    //     }
+    //     else if (newState == 2){
+    //         proposals[proposalID].state = State.Completed;
+    //     }
+    // }
 
-//     function manipulateProposal(uint proposalID, address newProposer, uint newTargetAmount, uint newCurrentAmount, uint newNumDonors, address[] memory newDonors) public{
-//         proposals[proposalID].proposer = newProposer;
-//         proposals[proposalID].targetAmount = newTargetAmount;
-//         proposals[proposalID].currentAmount = newCurrentAmount;
-//         proposals[proposalID].numDonors = newNumDonors;
-//         proposals[proposalID].donors = newDonors;
-//     }
+    // function manipulateProposal(uint proposalID, address newProposer, uint newTargetAmount, uint newCurrentAmount, uint newNumDonors, address[] memory newDonors) public{
+    //     proposals[proposalID].proposer = newProposer;
+    //     proposals[proposalID].targetAmount = newTargetAmount;
+    //     proposals[proposalID].currentAmount = newCurrentAmount;
+    //     proposals[proposalID].numDonors = newNumDonors;
+    //     proposals[proposalID].donors = newDonors;
+    // }
 
-//     function updateCampaignStateForTest(uint proposalID) public{
-//         Proposal storage selectedProposal = proposals[proposalID];
-//         _updateCampaignState(selectedProposal);
-//     }
+    // function updateCampaignStateForTest(uint proposalID) public{
+    //     Proposal storage selectedProposal = proposals[proposalID];
+    //     _updateCampaignState(selectedProposal);
+    // }
 }
