@@ -8,19 +8,34 @@ const Governance = () => {
     const [newFrozenElapse, setNewFrozenElapse] = useState('');
     const [newCampaignLength, setNewCampaignLength] = useState('');
     const [newOwner, setNewOwner] = useState('');
+
     const [contractBalance, setContractBalance] = useState('');
     const [numProposals, setNumProposals] = useState('0');
     const [isPaused, setIsPaused] = useState(false);
-
-    // const [contractBalance, setContractBalance] = useState('');
     const [minimumContribution, setMinimumContribution] = useState('');
     const [frozenElapse, setFrozenElapse] = useState('');
     const [campaignLength, setCampaignLength] = useState('');
-    // const [numProposals, setNumProposals] = useState('');
-    // const [isPaused, setIsPaused] = useState('');
     const [owner, setOwner] = useState('');
+    const [isOwner, setIsOwner] = useState(false);
+    const [currentUserAddress, setCurrentUserAddress] = useState('');
 
     useEffect (() => {
+
+        const checkOwner = async () => {
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                const userAddress = ethers.utils.getAddress(accounts[0]);
+                setCurrentUserAddress(userAddress);
+
+                const contractOwner = await App.Charitycontract.getOwner();
+                setIsOwner(userAddress.toLowerCase() === contractOwner.toLowerCase());
+            } catch (error) {
+                console.error("Error checking contract ownership:", error);
+                setIsOwner(false);
+            }
+
+        };
 
         const fetchContractData = async () => {
             try {
@@ -46,45 +61,81 @@ const Governance = () => {
         };
 
         if (App.Charitycontract) {
+            checkOwner();
             fetchContractData();
         }
 
     },[App.Charitycontract])
 
-    const pauseContract = async () => {
-        const tx = await App.Charitycontract.pause();
-        await tx.wait();
-        alert("Contract Paused");
+    if (!isOwner) {
+        return <div style={{ marginLeft: '150px', fontSize: '23px',color: 'black' }}>You are not the owner of this contract.</div>;
+    }
+
+    const pauseContract = async () => { 
+        try {
+            const tx = await App.Charitycontract.pause();
+            await tx.wait();
+            alert("Contract Paused");
+        } catch (error) {
+            console.error("Failed to pause contract:", error);
+            alert("Error pausing contract");
+        }
     };
 
-    const unpauseContract = async () => {
-        const tx = await App.Charitycontract.unpause();
-        await tx.wait();
-        alert("Contract Unpaused");
+    const unpauseContract = async () => { 
+        try {
+            const tx = await App.Charitycontract.unpause();
+            await tx.wait();
+            alert("Contract Unpaused");
+        } catch (error) {
+            console.error("Failed to unpause contract:", error);
+            alert("Error unpausing contract");
+        }
     };
 
-    const updateMinimumContribution = async () => {
-        const tx = await App.Charitycontract.updateMinimumContribution(ethers.utils.parseEther(newMinimumContribution));
-        await tx.wait();
-        alert("Minimum Contribution Updated");
+    const updateMinimumContribution = async () => { 
+         try {
+
+            const tx = await App.Charitycontract.updateMinimumContribution(ethers.utils.parseEther(newMinimumContribution));
+            await tx.wait();
+            alert("Minimum Contribution Updated");
+         } catch (error) {
+            console.error("Failed to update minimum contribution:", error);
+            alert("Error updating minimum contribution");
+         }
     };
 
-    const updateFrozenElapse = async () => {
-        const tx = await App.Charitycontract.updateFrozenElapse(newFrozenElapse);
-        await tx.wait();
-        alert("Frozen Elapse Updated");
+    const updateFrozenElapse = async () => { 
+        try {
+            const tx = await App.Charitycontract.updateFrozenElapse(newFrozenElapse);
+            await tx.wait();
+            alert("Frozen Elapse Updated");
+        } catch (error) {
+            console.error("Failed to update frozen elapse:", error);
+            alert("Error updating frozen elapse");
+        }
     };
 
-    const updateCampaignLength = async () => {
-        const tx = await App.Charitycontract.updateCampaignLength(newCampaignLength);
-        await tx.wait();
-        alert("Campaign Length Updated");
+    const updateCampaignLength = async () => { 
+        try {
+            const tx = await App.Charitycontract.updateCampaignLength(newCampaignLength);
+            await tx.wait();
+            alert("Campaign Length Updated");
+        } catch (error) {
+            console.error("Failed to update campaign length:", error);
+            alert("Error updating campaign length");
+        }
     };
 
-    const transferOwnership = async () => {
-        const tx = await App.Charitycontract.updateOwner(newOwner);
-        await tx.wait();
-        alert("Ownership Transferred");
+    const transferOwnership = async () => { 
+        try {
+            const tx = await App.Charitycontract.updateOwner(newOwner);
+            await tx.wait();
+            alert("Ownership Transferred");
+        } catch (error) {
+            console.error("Failed to transfer ownership:", error);
+            alert("Error transferring ownership");
+        }
     };
     
     const clearInput = (setter) => () => setter('');
