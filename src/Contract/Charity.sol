@@ -58,7 +58,7 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
     uint public minimumContribution; // Minimum contribution to be a donor
     uint public frozenElapse; // Time between donation and voting
     uint public campaignLength; // Time for crowd funding
-    uint public numProposals; // Number of proposals in the plateform, monotonically increasing, used as unique id
+    uint public numProposals; // Number of proposals in the platform, monotonically increasing, used as unique id
 
     receive() external payable {}
 
@@ -102,7 +102,7 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
     }
     
     // Allow users to withdraw their donations (cold amount only)
-    function withdrawDonationFromPlateform(address payable receiver) whenNotPaused public{
+    function withdrawDonationFromPlatform(address payable receiver) whenNotPaused public{
         if (contributors[msg.sender].coldAmount == 0){
             if (contributors[msg.sender].hotAmount > 0){
                 revert("The crowfunding is not finished yet");
