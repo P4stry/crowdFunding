@@ -238,6 +238,10 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
             }
             else continue;
         }
+        // Update campaign current amount
+        selectedProposal.currentAmount = 0;
+        // Update campaign number of donors
+        selectedProposal.numDonors = 0;
     }
 
     // Update campaign state
