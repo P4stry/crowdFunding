@@ -807,7 +807,7 @@
 						"type": "address"
 					}
 				],
-				"name": "withdrawDonationFromPlateform",
+				"name": "withdrawDonationFromPlatform",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -1021,11 +1021,11 @@
 			]
 		},
 		"contracts/Charity.sol": {
-			"keccak256": "0xed5366eab67f62a6a889086f5e41f739c540e1e0997cd72603a8141919256395",
+			"keccak256": "0x8f3a3e69595c6904c30f9dd24f10ad16eb0c95a66c181859c0378f8ba8157539",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://d35e94f5508904354a8f215ef2e976c7ef66731984a82f5df7027d18052da47d",
-				"dweb:/ipfs/QmfR2qo7SnRivnWvwHQ33X1PPNhHokDBWkxgxwUGrMPW8G"
+				"bzz-raw://2250a23ee9f4fd6b8c7ec956dd4677e420de1650b2c8a20717e3d97ca1fa8762",
+				"dweb:/ipfs/QmPPpkmn7x3ry5auxND35UgAikVeE9cNtCrWDsXu1StdFq"
 			]
 		}
 	},
