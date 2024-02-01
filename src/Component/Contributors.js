@@ -49,9 +49,7 @@ const Contributors = () => {
             </h1>
             <p class="lg:w-2/3 mx-auto leading-relaxed text-base">
               The minimum donation amount is{" "}
-              {0.00044 > minimumDonation.toString() / 10 ** 18
-                ? 0.00044
-                : minimumDonation.toString() / 10 ** 18}{" "}
+              {minimumDonation.toString() / 10 ** 18}{" "}
               ETH
             </p>
           </div>
