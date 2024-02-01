@@ -72,7 +72,7 @@ const Header = () => {
       <header class="text-gray-600 body-font ">
         <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
           <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
-            <span class="ml-3 font-mono font-bold text-3xl">Charity</span>
+            <span class="ml-3 font-mono font-bold text-3xl">CrowdFunding</span>
           </a>
           <div class="md:ml-auto flex flex-wrap items-center cursor-pointer text-base justify-center">
             <m
