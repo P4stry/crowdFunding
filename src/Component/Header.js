@@ -99,12 +99,12 @@ const Header = () => {
             >
               Home
             </m>
-            <m
+            {/* <m
               onClick={() => setRoute("Governance")}
               class="mr-5 mt-1 font-bold hover:text-gray-900"
             >
               Management
-            </m>
+            </m> */}
             {Address === null ? (
               <div
                 onClick={LoginWallet}
@@ -139,9 +139,10 @@ const Header = () => {
             return <Campaign />;
           } else if (route === "Home") {
             return <Home />;
-          } else if (route === "Governance") {
-            return <Governance />;
-          }
+          } 
+          // else if (route === "Governance") {
+          //   return <Governance />;
+          // }
         })()}
       </header>
     </HeaderState.Provider>
