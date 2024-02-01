@@ -926,7 +926,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/Charity.sol": "CrowdFunding"
+			"src/Contract/Charity.sol": "CrowdFunding"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -1020,12 +1020,12 @@
 				"dweb:/ipfs/QmTHiadFCSJUPpRjNegc5SahmeU8bAoY8i9Aq6tVscbcKR"
 			]
 		},
-		"contracts/Charity.sol": {
-			"keccak256": "0x8f3a3e69595c6904c30f9dd24f10ad16eb0c95a66c181859c0378f8ba8157539",
+		"src/Contract/Charity.sol": {
+			"keccak256": "0x28c7748740e8f2d31ecac783bd7bbdab72fb16f0a5a9eb7c50598d8c807e761e",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://2250a23ee9f4fd6b8c7ec956dd4677e420de1650b2c8a20717e3d97ca1fa8762",
-				"dweb:/ipfs/QmPPpkmn7x3ry5auxND35UgAikVeE9cNtCrWDsXu1StdFq"
+				"bzz-raw://11caec2ddfcb1187b8116469faee98d002d27e549c76041d927c23044a7d792b",
+				"dweb:/ipfs/QmRMyLLZBr3BFFZCwoVputTH1h9ddNFTGhdRgyUofsMLs3"
 			]
 		}
 	},
