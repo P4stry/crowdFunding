@@ -279,6 +279,19 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "decisionID",
+						"type": "uint256"
+					}
+				],
+				"name": "executeDecision",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "proposalID",
 						"type": "uint256"
 					}
@@ -370,8 +383,65 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "decisionID",
+						"type": "uint256"
+					}
+				],
+				"name": "getGovernanceDecisions",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "uniqueid",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "variable",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "newValue",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "startTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "voteVolumn",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "re_state",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "getMinimumContribution",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getNumDecisions",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -515,6 +585,63 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "getVotingLength",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "governanceDecisions",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "uniqueid",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum CrowdFunding.UpgradableVariable",
+						"name": "variable",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint256",
+						"name": "newValue",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "startTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "voteVolumn",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum CrowdFunding.State",
+						"name": "state",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -530,6 +657,19 @@
 			{
 				"inputs": [],
 				"name": "minimumContribution",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "numDecisions",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -670,6 +810,24 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "variable",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "newValue",
+						"type": "uint256"
+					}
+				],
+				"name": "proposeGovernanceDecision",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "proxiableUUID",
 				"outputs": [
@@ -719,45 +877,6 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
-						"name": "newCampaignLength",
-						"type": "uint256"
-					}
-				],
-				"name": "updateCampaignLength",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "newFrozenElapse",
-						"type": "uint256"
-					}
-				],
-				"name": "updateFrozenElapse",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "newMinimumContribution",
-						"type": "uint256"
-					}
-				],
-				"name": "updateMinimumContribution",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
 						"internalType": "address",
 						"name": "newOwner",
 						"type": "address"
@@ -784,6 +903,32 @@
 				"name": "upgradeToAndCall",
 				"outputs": [],
 				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "decisionID",
+						"type": "uint256"
+					}
+				],
+				"name": "voteToDecision",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "votingLength",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -926,7 +1071,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"src/Contract/Charity.sol": "CrowdFunding"
+			"charitable-trust-master/src/Contract/CharityV2.sol": "CrowdFunding"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -1020,12 +1165,12 @@
 				"dweb:/ipfs/QmTHiadFCSJUPpRjNegc5SahmeU8bAoY8i9Aq6tVscbcKR"
 			]
 		},
-		"src/Contract/Charity.sol": {
-			"keccak256": "0x28c7748740e8f2d31ecac783bd7bbdab72fb16f0a5a9eb7c50598d8c807e761e",
+		"charitable-trust-master/src/Contract/CharityV2.sol": {
+			"keccak256": "0xb4d62895294ea72c55d885aa6ccfd4b6651ae585297a31d3606ab00d2941a851",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://11caec2ddfcb1187b8116469faee98d002d27e549c76041d927c23044a7d792b",
-				"dweb:/ipfs/QmRMyLLZBr3BFFZCwoVputTH1h9ddNFTGhdRgyUofsMLs3"
+				"bzz-raw://322630702165053c097e68aecaa00c2543c1ef4927dbac3ff907c5ca3830c825",
+				"dweb:/ipfs/QmXRQbj1W9JVhhz2Qi2ovMjpW47rqUYrnkoYD3rARiiha3"
 			]
 		}
 	},
