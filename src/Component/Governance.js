@@ -4,10 +4,6 @@ import { ethers } from 'ethers';
 
 const Governance = () => {
     const App = useContext(AppState);
-    const [newMinimumContribution, setNewMinimumContribution] = useState('');
-    const [newFrozenElapse, setNewFrozenElapse] = useState('');
-    const [newCampaignLength, setNewCampaignLength] = useState('');
-    const [newOwner, setNewOwner] = useState('');
 
     const [contractBalance, setContractBalance] = useState('');
     const [numProposals, setNumProposals] = useState('0');
@@ -16,26 +12,14 @@ const Governance = () => {
     const [frozenElapse, setFrozenElapse] = useState('');
     const [campaignLength, setCampaignLength] = useState('');
     const [owner, setOwner] = useState('');
-    const [isOwner, setIsOwner] = useState(false);
-    const [currentUserAddress, setCurrentUserAddress] = useState('');
+    const [Variable, setVariable] = useState();
+    const [newvalue, setnewvalue] = useState();
+    const [Decision, setDecision] = useState([]);
+    const [votePause, setVotePause] = useState({ approve: 0, reject: 0, abstain: 0 });
+    const [voteUnpause, setVoteUnpause] = useState({ approve: 0, reject: 0, abstain: 0 });
+    const [voteMinContribution, setVoteMinContribution] = useState({ approve: 0, reject: 0, abstain: 0 });
 
     useEffect (() => {
-
-        const checkOwner = async () => {
-            try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const accounts = await provider.send("eth_requestAccounts", []);
-                const userAddress = ethers.utils.getAddress(accounts[0]);
-                setCurrentUserAddress(userAddress);
-
-                const contractOwner = await App.Charitycontract.getOwner();
-                setIsOwner(userAddress.toLowerCase() === contractOwner.toLowerCase());
-            } catch (error) {
-                console.error("Error checking contract ownership:", error);
-                setIsOwner(false);
-            }
-
-        };
 
         const fetchContractData = async () => {
             try {
@@ -60,85 +44,80 @@ const Governance = () => {
             }
         };
 
+        const getDecisions = async () => {
+            try {
+              const Count = await App.Charitycontract.getNumDecisions();
+              let activeDecision = [];
+              for (let i = 0; i < Count; i++) {
+                const decisions = await App.Charitycontract.governanceDecisions(i);
+                if (decisions.state == 0) {
+                    activeDecision.push(decisions);
+                } 
+              }
+              setDecision(activeDecision)
+            } catch (error) {
+              console.log(error);
+            }
+          };
+          
         if (App.Charitycontract) {
-            checkOwner();
             fetchContractData();
+            getDecisions();
         }
 
     },[App.Charitycontract])
 
-    if (!isOwner) {
-        return <div style={{ marginLeft: '150px', fontSize: '23px',color: 'black' }}>You are not the owner of this contract.</div>;
+    const createdicision = async () => {
+        try{
+            const newdicision = await App.Charitycontract.proposeGovernanceDecision(
+                Variable,
+                newvalue
+            );
+            await newdicision.wait();
+            alert("Created Sucessfull!");
+            setVariable("");
+            setnewvalue("");
+        } catch(error) {
+            alert("Please input the valid info");
+        }
     }
-
-    const pauseContract = async () => { 
+    const vote = async (id) => {
         try {
-            const tx = await App.Charitycontract.pause();
+            console.log(id);
+            const tx = await App.Charitycontract.voteToDecision(id);
             await tx.wait();
-            alert("Contract Paused");
-        } catch (error) {
-            console.error("Failed to pause contract:", error);
-            alert("Error pausing contract");
+            alert("Vote Successfull!");
+          } catch(error) {
+            alert("error");
+          }
+    };
+    function convertTime(sec) {
+        let date = new Date(sec * 1000);
+        return date.toLocaleString();
+      }
+    const styles = {
+        container: {
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+        },
+        topHalf: {
+          display: 'flex',
+          flex: 1,
+        },
+        leftRightSide: {
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        bottomHalf: {
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }
-    };
-
-    const unpauseContract = async () => { 
-        try {
-            const tx = await App.Charitycontract.unpause();
-            await tx.wait();
-            alert("Contract Unpaused");
-        } catch (error) {
-            console.error("Failed to unpause contract:", error);
-            alert("Error unpausing contract");
-        }
-    };
-
-    const updateMinimumContribution = async () => { 
-         try {
-
-            const tx = await App.Charitycontract.updateMinimumContribution(ethers.utils.parseEther(newMinimumContribution));
-            await tx.wait();
-            alert("Minimum Contribution Updated");
-         } catch (error) {
-            console.error("Failed to update minimum contribution:", error);
-            alert("Error updating minimum contribution");
-         }
-    };
-
-    const updateFrozenElapse = async () => { 
-        try {
-            const tx = await App.Charitycontract.updateFrozenElapse(newFrozenElapse);
-            await tx.wait();
-            alert("Frozen Elapse Updated");
-        } catch (error) {
-            console.error("Failed to update frozen elapse:", error);
-            alert("Error updating frozen elapse");
-        }
-    };
-
-    const updateCampaignLength = async () => { 
-        try {
-            const tx = await App.Charitycontract.updateCampaignLength(newCampaignLength);
-            await tx.wait();
-            alert("Campaign Length Updated");
-        } catch (error) {
-            console.error("Failed to update campaign length:", error);
-            alert("Error updating campaign length");
-        }
-    };
-
-    const transferOwnership = async () => { 
-        try {
-            const tx = await App.Charitycontract.updateOwner(newOwner);
-            await tx.wait();
-            alert("Ownership Transferred");
-        } catch (error) {
-            console.error("Failed to transfer ownership:", error);
-            alert("Error transferring ownership");
-        }
-    };
-    
-    const clearInput = (setter) => () => setter('');
+      };
 
     const headerStyle = {
         fontSize: '36px',
@@ -150,7 +129,8 @@ const Governance = () => {
     const textStyle = {
         fontSize: '16px',
         color: '#555',
-        marginBottom: '10px'
+        marginBottom: '10px',
+        marginLeft: '80px'
     };
 
     const buttonStyle = {
@@ -162,72 +142,137 @@ const Governance = () => {
         borderRadius: '5px',
         margin: '5px'
     };
-    
-    const inputStyle = {
-        padding: '10px',
-        margin: '5px',
-        borderRadius: '5px',
-        border: '1px solid #ccc'
-    };
-    
-    const inputGroupStyle = {
-        marginBottom: '20px'
-    };
-    
+        
     return (
-        <div style={{ maxWidth: '500px', margin: '0 auto', padding: '20px' }}>
+        <div style={styles.container}>
             <h2 style={headerStyle}>Contract Governance</h2>
-            <p style={textStyle}>Contract Balance: {contractBalance} ETH</p>
-            <p style={textStyle}>Minimum Contribution: {minimumContribution} ETH</p>
-            <p style={textStyle}>Frozen Elapse: {frozenElapse} seconds</p>
-            <p style={textStyle}>Campaign Length: {campaignLength} days</p>
-            <p style={textStyle}>Number of Proposals: {numProposals}</p>
-            <p style={textStyle}>Is Paused: {isPaused ? 'Yes' : 'No'}</p>
-            <p style={textStyle}>Owner: {owner}</p>
-            <div style={{ marginBottom: '15px' }}>
-                <button onClick={pauseContract} style={buttonStyle}>Pause Contract</button>
-                <button onClick={unpauseContract} style={buttonStyle}>Unpause Contract</button>
+            <div style={styles.topHalf}>
+                <div>
+                    <p class="sm:text-3l text-2xl font-medium title-font mb-5 mt-5 ml-10 text-gray-900">
+                        Basic Info:
+                    </p>
+                    <p style={textStyle}>Contract Balance: {contractBalance} ETH</p>
+                    <p style={textStyle}>Minimum Contribution: {minimumContribution} ETH</p>
+                    <p style={textStyle}>Frozen Elapse: {frozenElapse} seconds</p>
+                    <p style={textStyle}>Campaign Length: {campaignLength} days</p>
+                    <p style={textStyle}>Number of Proposals: {numProposals}</p>
+                    <p style={textStyle}>Is Paused: {isPaused ? 'Yes' : 'No'}</p>
+                    <p style={textStyle}>Owner: {owner}</p>
+                </div>
+                <div>
+                    <p class="sm:text-3l text-2xl font-medium title-font mb-5 mt-5 ml-10 text-gray-900">
+                        Create Dicision:
+                    </p>
+                    <div class="flex lg:w-2/3 w-full sm:flex-row flex-col justify-start px-8 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-end ml-10">
+                    <div class="relative flex-grow w-full">
+                        <label for="campaign-option" class="leading-7 text-sm text-gray-600">
+                            Choose an Option
+                        </label>
+                        <select
+                            value={Variable}
+                            onChange={(e) => setVariable(e.target.value)}
+                            id="campaign-option"
+                            name="campaign-option"
+                            style={{ width: "250px" }}
+                            class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-yellow-500 focus:bg-transparent focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                        >
+                            <option value="" disabled>Please select an option</option>
+                            <option value="MinimumContribution">Minimum Contribution</option>
+                            <option value="FrozenElapse">Frozen Elapse</option>
+                            <option value="CampaignLength">Campaign Length</option>
+                            <option value="VotingLength">Voting Length</option>
+                        </select>
+                    </div>
+                    <div class="relative flex-grow w-full">
+                        <label for="name" class="leading-7 text-sm text-gray-600">
+                            value
+                        </label>
+                        <input
+                            value={newvalue}
+                            onChange={(e) => setnewvalue(e.target.value)}
+                            type="text"
+                            style={{ width: "150px" }}
+                            class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-yellow-500 focus:bg-white focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                        />   
+                    </div>
+                </div>
+                    <button
+                    variant="outlined"
+                    onClick={createdicision}
+                    style={{ whiteSpace: "nowrap" }}
+                    class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
+                    >
+                        Create Dicision
+                    </button>
+                </div>
             </div>
-            <div style={inputGroupStyle}>
-                <input 
-                    value={newMinimumContribution} 
-                    onChange={(e) => setNewMinimumContribution(e.target.value)}
-                    onFocus={clearInput(setNewMinimumContribution)} 
-                    placeholder="New Min Contribution"
-                    style={inputStyle}
-                />
-                <button onClick={updateMinimumContribution} style={buttonStyle}>Update Min Contribution</button>
-            </div>
-            <div style={inputGroupStyle}>
-                <input 
-                    value={newFrozenElapse} 
-                    onChange={(e) => setNewFrozenElapse(e.target.value)} 
-                    onFocus={clearInput(setNewFrozenElapse)}
-                    placeholder="New Frozen Elapse"
-                    style={inputStyle}
-                />
-                <button onClick={updateFrozenElapse} style={buttonStyle}>Update Frozen Elapse</button>
-            </div>
-            <div style={inputGroupStyle}>
-                <input 
-                    value={newCampaignLength} 
-                    onChange={(e) => setNewCampaignLength(e.target.value)} 
-                    onFocus={clearInput(setNewCampaignLength)}
-                    placeholder="New Campaign Length"
-                    style={inputStyle}
-                />
-                <button onClick={updateCampaignLength} style={buttonStyle}>Update Campaign Length</button>
-            </div>
-            <div style={inputGroupStyle}>
-                <input 
-                    value={newOwner} 
-                    onChange={(e) => setNewOwner(e.target.value)} 
-                    onFocus={clearInput(setNewOwner)}
-                    placeholder="New Owner Address"
-                    style={inputStyle}
-                />
-                <button onClick={transferOwnership} style={buttonStyle}>Transfer Ownership</button>
-            </div>
+
+             <div>
+                <p class="sm:text-3l text-2xl font-medium title-font mb-5 mt-5 ml-10 text-gray-900">
+                    Current Dicision:
+                </p>
+                <div class="container px-5 py-5 mx-auto">
+                    <div class="grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
+                    {Decision && Decision.length !== 0 ? (
+                        Decision.sort((a, b) => b.startTime - a.startTime).map(
+                        (e) => {
+                            return (
+                            <div class="p-4">
+                                <div class="h-full bg-gray-100 bg-opacity-75 px-8 pt-10 pb-24 rounded-lg overflow-hidden text-center relative">
+                                <h2 class="tracking-widest text-base title-font font-medium text-gray-900 mb-1 -mt-1">
+                                    #{e.uniqueid.toString()}
+                                </h2>
+                                <h2 class="tracking-widest text-15px title-font font-medium text-gray-900 mb-1">
+                                    Type of Dicision:{e.variable}
+                                </h2>
+                                <h2 style={{ textAlign: "left" , marginLeft: "80px"}}>
+                                    0--Minimum Contribution<br></br>
+                                    1--Frozen Elapse<br></br>
+                                    2--Campaign Length<br></br>
+                                    3--Voting Length<br></br>
+                                </h2>
+                                <p
+                                    class="leading-relaxed mt-5 mb-10"
+                                    style={textStyle}
+                                    title={e.newValue}
+                                >
+                                    new value: {e.newValue.toString()}
+                                </p>
+                                <div className="flex justify-center absolute bottom-14 left-0 w-full py-4">
+                                    <button
+                                    onClick={() => vote(Number(e.uniqueid.toString()))}
+                                    class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
+                                    >
+                                    Vote
+                                    </button>
+                                </div>
+                                <div class="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
+                                    <span class="text-gray-500  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                                    Start time
+                                    </span>
+                                    <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
+                                    {convertTime(e.startTime)}
+                                    </span>
+                                    <span class="text-gray-500  font-bold ml-5 mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                                    Number of voteVolumn
+                                    </span>
+                                    <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
+                                    {e.voteVolumn.toString()}
+                                    </span>
+                                </div>
+                                </div>
+                            </div>
+                            );
+                        }
+                        )
+                    ) : (
+                        <div class="title-font sm:text-2xl text-xl font-medium text-gray-900 mb-3 ml-14">
+                        No Dicisions now.
+                        </div>
+                    )}
+                </div>
+      </div>
+            </div>            
         </div>
 
     );
