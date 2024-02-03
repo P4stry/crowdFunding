@@ -56,7 +56,7 @@ const Governance = () => {
               }
               setDecision(activeDecision)
             } catch (error) {
-              console.log(error);
+              console.error(error);
             }
           };
           
@@ -67,13 +67,13 @@ const Governance = () => {
 
     },[App.Charitycontract])
 
-    const createdicision = async () => {
+    const createdecision = async () => {
         try{
-            const newdicision = await App.Charitycontract.proposeGovernanceDecision(
+            const newdecision = await App.Charitycontract.proposeGovernanceDecision(
                 Variable,
                 newvalue
             );
-            await newdicision.wait();
+            await newdecision.wait();
             alert("Created Sucessfull!");
             setVariable("");
             setnewvalue("");
@@ -88,7 +88,21 @@ const Governance = () => {
             await tx.wait();
             alert("Vote Successfull!");
           } catch(error) {
-            alert("error");
+            if (error.message.includes("user rejected transaction")) {
+                alert("User rejected transaction");
+              } else if (
+                error.error.message ==
+                "execution reverted: The decision is not active"
+              ) {
+                alert("The decision is not active");
+              } else if (
+                error.error.message ==
+                "execution reverted: You have voted to this decision"
+              ) {
+                alert(
+                  "You have voted to this decision"
+                );
+              }
           }
     };
     function convertTime(sec) {
@@ -198,7 +212,7 @@ const Governance = () => {
                 </div>
                     <button
                     variant="outlined"
-                    onClick={createdicision}
+                    onClick={createdecision}
                     style={{ whiteSpace: "nowrap" }}
                     class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
                     >
@@ -257,7 +271,7 @@ const Governance = () => {
                                     Number of voteVolumn
                                     </span>
                                     <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
-                                    {e.voteVolumn.toString()}
+                                    {Number(e.voteVolumn.toString())/ 10 ** 18}
                                     </span>
                                 </div>
                                 </div>

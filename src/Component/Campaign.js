@@ -12,7 +12,6 @@ const Campaign = () => {
   const [ActiveProposals, setActiveProposals] = useState([]);
   const [CompletedProposals, setCompletedProposals] = useState([]);
   const [num, setnum] = useState(0);
-  const [VoteNum, setVoteNum] = useState(0);
   const [uid, setuid] = useState("");
   const [proposal, setproposal] = useState("");
   const [open, setOpen] = React.useState(false);
@@ -73,23 +72,12 @@ const Campaign = () => {
     return state;
   }
 
-  const Vote = async () => {
-    if (VoteNum == 0) {
-      // const tx = await App.Charitycontract.pause();
-      // await tx.wait();
-      alert("Voted Successfully!");
-      setVoteNum(VoteNum + 1);
-    } else {
-      alert("You have already voted!");
-    }
-  };
-
   const Donate = async (id) => {
     try {
       console.log(id);
       const tx = await App.Charitycontract.donateProposal(id);
       await tx.wait();
-      alert("Donated Successfully!");
+      alert("Donated Successfull!");
       setnum(num + 1);
     } catch (error) {
       if (
@@ -249,19 +237,13 @@ const Campaign = () => {
                         {e.description}
                       </h2>
                       <div class="text-center mt-2 leading-none flex justify-center absolute bottom-5 left-0 w-full py-4">
-                        <span class="text-gray-500 font-bold mr-1 inline-flex items-center leading-none text-sm pr-1 py-1 border-r-2 border-gray-200">
-                          Votes
-                        </span>
-                        <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
-                          {VoteNum}
-                        </span>
-                        <span class="text-gray-500 font-bold ml-3 mr-1 inline-flex items-center leading-none text-sm pr-1 py-1 border-r-2 border-gray-200">
+                        <span class="text-gray-500 font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
                           Funds Need
                         </span>
                         <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
                           {Number(e.targetAmount.toString()) / 10 ** 18} ETH {}
                         </span>
-                        <span class="text-gray-500 ml-4 font-bold mr-1 inline-flex items-center leading-none text-sm pr-1 py-1 border-r-2 border-gray-200">
+                        <span class="text-gray-500 ml-10 font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
                           Current Funds
                         </span>
                         <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
@@ -283,12 +265,6 @@ const Campaign = () => {
                         </span>
                       </div>
                       <div className="flex justify-center absolute bottom-14 left-0 w-full py-4">
-                        <button
-                          onClick={() => Vote()}
-                          class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
-                        >
-                          Vote
-                        </button>
                         <button
                           onClick={() => Donate(Number(e.uniqueid.toString()))}
                           class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
