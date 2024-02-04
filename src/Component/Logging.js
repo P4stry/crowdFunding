@@ -58,7 +58,7 @@ const Logging = () => {
         return;
       }
     }
-    alert("Please input valid transaction address!");
+    alert("Please input valid transaction hash!");
     setTx("");
   };
   const handleClose = () => {
@@ -90,7 +90,7 @@ const Logging = () => {
               type="text"
               id="full-name"
               name="full-name"
-              placeholder="Please input transaction address"
+              placeholder="Please input transaction hash"
               style={{ width: "1000px" }}
               class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-yellow-500 focus:bg-transparent focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
             />

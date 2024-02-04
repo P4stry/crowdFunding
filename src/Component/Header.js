@@ -5,6 +5,7 @@ import Contributors from "./Contributors";
 import Campaign from "./Campaign";
 import Home from "./Home";
 import Governance from "./Governance";
+import Manual from "./Manual";
 import Logging from "./Logging";
 
 const HeaderState = createContext();
@@ -77,6 +78,12 @@ const Header = () => {
           </a>
           <div class="md:ml-auto flex flex-wrap items-center cursor-pointer text-base justify-center">
             <m
+              onClick={() => setRoute("Manual")}
+              class="mr-5 mt-1 font-bold hover:text-gray-900"
+            >
+              Manual
+            </m>
+            <m
               onClick={() => setRoute("Contributors")}
               class="mr-5 mt-1 font-bold hover:text-gray-900"
             >
@@ -138,7 +145,9 @@ const Header = () => {
           </div>
         </div>
         {(() => {
-          if (route === "Contributors") {
+          if (route === "Manual") {
+            return <Manual />;
+          } else if (route === "Contributors") {
             return <Contributors />;
           } else if (route === "Create") {
             return <Create />;
@@ -148,8 +157,7 @@ const Header = () => {
             return <Home />;
           } else if (route === "Logging") {
             return <Logging />;
-          }
-          else if (route === "Governance") {
+          } else if (route === "Governance") {
             return <Governance />;
           }
         })()}
