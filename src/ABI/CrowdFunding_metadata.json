@@ -1166,11 +1166,11 @@
 			]
 		},
 		"charitable-trust-master/src/Contract/CharityV2.sol": {
-			"keccak256": "0xb4d62895294ea72c55d885aa6ccfd4b6651ae585297a31d3606ab00d2941a851",
+			"keccak256": "0xa4d21d41dd783112e036a2b6aa9fc8831108ed275ed4a5171ee5e3a36dca9428",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://322630702165053c097e68aecaa00c2543c1ef4927dbac3ff907c5ca3830c825",
-				"dweb:/ipfs/QmXRQbj1W9JVhhz2Qi2ovMjpW47rqUYrnkoYD3rARiiha3"
+				"bzz-raw://6e42b7188526f966e800edd31007555afa2d39117471beca87f90da08325e038",
+				"dweb:/ipfs/QmaY5Tsne3iZSeHHStBSLd847DeRMrCgYFhpyhAppoWwv2"
 			]
 		}
 	},
