@@ -71,7 +71,7 @@ const Governance = () => {
         try{
             const newdecision = await App.Charitycontract.proposeGovernanceDecision(
                 Variable,
-                Variable === 'MinimumContribution' ? newvalue * 10**18 : newvalue
+                newvalue
             );
             await newdecision.wait();
             alert("Created Sucessfull!");
@@ -292,7 +292,7 @@ const Governance = () => {
                                     Number of voteVolumn
                                     </span>
                                     <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
-                                    {Number(((e.voteVolumn / contractBalance) * 100).toString())} %
+                                    {Number(((e.voteVolumn / contractBalance) * 100 / 10**18).toString())} %
                                     </span>
                                 </div>
                                 </div>
