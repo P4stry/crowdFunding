@@ -71,7 +71,7 @@ const Governance = () => {
         try{
             const newdecision = await App.Charitycontract.proposeGovernanceDecision(
                 Variable,
-                newvalue
+                Variable === 'MinimumContribution' ? newvalue * 10**18 : newvalue
             );
             await newdecision.wait();
             alert("Created Sucessfull!");
@@ -187,7 +187,7 @@ const Governance = () => {
                             onChange={(e) => setVariable(e.target.value)}
                             id="campaign-option"
                             name="campaign-option"
-                            style={{ width: "250px" }}
+                            style={{ width: "250px", height: "40px"}}
                             class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-yellow-500 focus:bg-transparent focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                         >
                             <option value="" disabled>Please select an option</option>
@@ -205,7 +205,7 @@ const Governance = () => {
                             value={newvalue}
                             onChange={(e) => setnewvalue(e.target.value)}
                             type="text"
-                            style={{ width: "150px" }}
+                            style={{ width: "150px", height: "40px"}}
                             class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-yellow-500 focus:bg-white focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                         />   
                     </div>
@@ -239,7 +239,7 @@ const Governance = () => {
                                 <h2 class="tracking-widest text-15px title-font font-medium text-gray-900 mb-1">
                                     Type of Dicision:{e.variable}
                                 </h2>
-                                <h2 style={{ textAlign: "left" , marginLeft: "80px"}}>
+                                <h2 style={{ textAlign: "left" , marginLeft: "90px"}}>
                                     0--Minimum Contribution<br></br>
                                     1--Frozen Elapse<br></br>
                                     2--Campaign Length<br></br>
@@ -247,7 +247,6 @@ const Governance = () => {
                                 </h2>
                                 <p
                                     class="leading-relaxed mt-5 mb-10"
-                                    style={textStyle}
                                     title={e.newValue}
                                 >
                                     new value: {e.newValue.toString()}
