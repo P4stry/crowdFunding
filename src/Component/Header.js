@@ -5,6 +5,7 @@ import Contributors from "./Contributors";
 import Campaign from "./Campaign";
 import Home from "./Home";
 import Governance from "./Governance";
+import Logging from "./Logging";
 
 const HeaderState = createContext();
 const Header = () => {
@@ -100,6 +101,12 @@ const Header = () => {
               Home
             </m>
             <m
+              onClick={() => setRoute("Logging")}
+              class="mr-5 mt-1 font-bold hover:text-gray-900"
+            >
+              Log
+            </m>
+            <m
               onClick={() => setRoute("Governance")}
               class="mr-5 mt-1 font-bold hover:text-gray-900"
             >
@@ -139,7 +146,9 @@ const Header = () => {
             return <Campaign />;
           } else if (route === "Home") {
             return <Home />;
-          } 
+          } else if (route === "Logging") {
+            return <Logging />;
+          }
           else if (route === "Governance") {
             return <Governance />;
           }

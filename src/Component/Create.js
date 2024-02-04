@@ -1,12 +1,32 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AppState } from "../App";
 import { ethers } from "ethers";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 const Create = () => {
   const App = useContext(AppState);
   const [Address, setAddress] = useState();
   const [targetAmount, setTargetAmount] = useState();
   const [Description, setDescription] = useState();
   const [Balance, setBalance] = useState("");
+  const [PassNum, setPassNum] = useState("");
+  const [TestName, setTestName] = useState("");
+
+  const [open, setOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setPassNum("");
+    setTestName("");
+  };
+
   useEffect(() => {
     const getBal = async () => {
       try {
@@ -18,18 +38,23 @@ const Create = () => {
     };
     getBal();
   }, []);
+
   const Create = async () => {
     try {
-      const tx = await App.Charitycontract.createProposal(
-        Description,
-        Address,
-        ethers.utils.parseEther(targetAmount)
-      );
-      await tx.wait();
-      alert("Created Sucessfull!");
-      setAddress("");
-      setTargetAmount("");
-      setDescription("");
+      if (PassNum == "123456" && TestName == "test") {
+        const tx = await App.Charitycontract.createProposal(
+          Description,
+          Address,
+          ethers.utils.parseEther(targetAmount)
+        );
+        await tx.wait();
+        alert("Created Sucessfully!");
+        setAddress("");
+        setTargetAmount("");
+        setDescription("");
+      } else {
+        alert("Invalid identity!");
+      }
     } catch (error) {
       if (error.message.includes("user rejected transaction")) {
         alert("User rejected transaction");
@@ -76,7 +101,7 @@ const Create = () => {
                   <input
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
-                    type="email"
+                    type="text"
                     class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-yellow-500 focus:bg-white focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                   />
                 </div>
@@ -96,12 +121,59 @@ const Create = () => {
                 </div>
               </div>
               <div class="p-2 w-full">
-                <button
-                  onClick={() => Create()}
+                <Button
+                  variant="outlined"
+                  onClick={handleClickOpen}
                   class="flex mx-auto text-white bg-yellow-500 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded text-lg"
                 >
                   Submit
-                </button>
+                </Button>
+                <Dialog open={open} onClose={handleClose}>
+                  <DialogTitle>Verify Identity</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      To Initiate campaign to this platform, please enter your
+                      passport number and name.
+                    </DialogContentText>
+                    <TextField
+                      autoFocus
+                      required
+                      margin="dense"
+                      id="passport"
+                      name="passport"
+                      label="Passport"
+                      type="text"
+                      fullWidth
+                      variant="standard"
+                      value={PassNum}
+                      onChange={(e) => setPassNum(e.target.value)}
+                    />
+                    <TextField
+                      autoFocus
+                      required
+                      margin="dense"
+                      id="name"
+                      name="name"
+                      label="Name"
+                      type="text"
+                      fullWidth
+                      variant="standard"
+                      value={TestName}
+                      onChange={(e) => setTestName(e.target.value)}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button
+                      onClick={() => {
+                        handleClose();
+                        Create();
+                      }}
+                    >
+                      Submit
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </div>
             </div>
           </div>
