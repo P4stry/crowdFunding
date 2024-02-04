@@ -78,7 +78,11 @@ const Governance = () => {
             setVariable("");
             setnewvalue("");
         } catch(error) {
-            alert("Please input the valid info");
+            if (error.message.includes("user rejected transaction")) {
+                alert("User rejected transaction");
+            } else if( error.error.message == "execution reverted: You must donate to the platform first"){
+                alert("You must donate to the platform first");
+            }
         }
     }
     const vote = async (id) => {
@@ -87,23 +91,35 @@ const Governance = () => {
             const tx = await App.Charitycontract.voteToDecision(id);
             await tx.wait();
             alert("Vote Successfull!");
-          } catch(error) {
+        } catch(error) {
             if (error.message.includes("user rejected transaction")) {
                 alert("User rejected transaction");
-              } else if (
-                error.error.message ==
-                "execution reverted: The decision is not active"
-              ) {
+            } else if( error.error.message == "execution reverted: You must donate to the platform first"){
+                alert("You must donate to the platform first");
+            } else if (error.error.message == "execution reverted: The decision is not active") {
                 alert("The decision is not active");
-              } else if (
-                error.error.message ==
-                "execution reverted: You have voted to this decision"
-              ) {
-                alert(
-                  "You have voted to this decision"
-                );
-              }
-          }
+            } else if (error.error.message == "execution reverted: You have voted to this decision") {
+                alert("You have voted to this decision");
+            }
+        }
+    };
+    const execute = async (id) => {
+        try {
+            console.log(id);
+            const tx = await App.Charitycontract.executeDecision(id);
+            await tx.wait();
+            alert("Execute the governance decision Successfully!");
+        } catch(error) {
+            if (error.message.includes("user rejected transaction")) {
+                alert("User rejected transaction");
+            } else if( error.error.message == "execution reverted: You must donate to the platform first"){
+                alert("You must donate to the platform first");
+            } else if (error.message == "execution reverted: The decision is not active") {
+                alert("The decision is not active");
+            } else if (error.error.message == "execution reverted: The decision does not have over 50% vote") {
+                alert("The decision does not have over 50% vote");
+            }
+        }
     };
     function convertTime(sec) {
         let date = new Date(sec * 1000);
@@ -175,7 +191,7 @@ const Governance = () => {
                 </div>
                 <div>
                     <p class="sm:text-3l text-2xl font-medium title-font mb-5 mt-5 ml-10 text-gray-900">
-                        Create Dicision:
+                        Create Decision:
                     </p>
                     <div class="flex lg:w-2/3 w-full sm:flex-row flex-col justify-start px-8 sm:space-x-4 sm:space-y-0 space-y-4 sm:px-0 items-end ml-10">
                     <div class="relative flex-grow w-full">
@@ -216,14 +232,14 @@ const Governance = () => {
                     style={{ whiteSpace: "nowrap" }}
                     class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
                     >
-                        Create Dicision
+                        Create Decision
                     </button>
                 </div>
             </div>
 
              <div>
                 <p class="sm:text-3l text-2xl font-medium title-font mb-5 mt-5 ml-10 text-gray-900">
-                    Current Dicision:
+                    Current Decision:
                 </p>
                 <div class="container px-5 py-5 mx-auto">
                     <div class="grid sm:grid-cols-1 lg:grid-cols-3 gap-4">
@@ -237,7 +253,7 @@ const Governance = () => {
                                     #{e.uniqueid.toString()}
                                 </h2>
                                 <h2 class="tracking-widest text-15px title-font font-medium text-gray-900 mb-1">
-                                    Type of Dicision:{e.variable}
+                                    Type of Decision:{e.variable}
                                 </h2>
                                 <h2 style={{ textAlign: "left" , marginLeft: "80px"}}>
                                     0--Minimum Contribution<br></br>
@@ -259,6 +275,12 @@ const Governance = () => {
                                     >
                                     Vote
                                     </button>
+                                    <button
+                                    onClick={() => execute(Number(e.uniqueid.toString()))}
+                                    class="flex mx-auto mt-10 text-white bg-yellow-400 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded"
+                                    >
+                                    Execute
+                                    </button>
                                 </div>
                                 <div class="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
                                     <span class="text-gray-500  font-bold mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
@@ -271,7 +293,7 @@ const Governance = () => {
                                     Number of voteVolumn
                                     </span>
                                     <span class="text-gray-650 font-bold  inline-flex items-center leading-none text-sm">
-                                    {Number(e.voteVolumn.toString())/ 10 ** 18}
+                                    {Number(((e.voteVolumn / contractBalance) * 100).toString())} %
                                     </span>
                                 </div>
                                 </div>
@@ -281,7 +303,7 @@ const Governance = () => {
                         )
                     ) : (
                         <div class="title-font sm:text-2xl text-xl font-medium text-gray-900 mb-3 ml-14">
-                        No Dicisions now.
+                        No Decisions now.
                         </div>
                     )}
                 </div>
