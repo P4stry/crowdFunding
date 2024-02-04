@@ -293,7 +293,7 @@ contract CrowdFunding is Initializable, PausableUpgradeable, OwnableUpgradeable,
         // Prevent Flashloan attack: The elapsed time between donation and voting should be longer than predefined time
         require(block.timestamp - contributors[msg.sender].timestamp >= frozenElapse * 1 seconds, "The balance you donated is still in pending");
         
-        Decision storage newDecision = governanceDecisions[numProposals];
+        Decision storage newDecision = governanceDecisions[numDecisions];
         
         newDecision.uniqueid = numDecisions;
         if (keccak256(abi.encodePacked(variable)) == keccak256(abi.encodePacked("MinimumContribution"))){
